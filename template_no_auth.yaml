@@ -1,0 +1,46 @@
+# Defines all the code we need to build our serverless application
+# Source: https://towardsdatascience.com/serverless-deployment-of-machine-learning-models-on-aws-lambda-5bd1ca9b5c42
+# Source code: https://gist.github.com/lloydhamilton/830da494bc3ec185bbde1cf76151f68b#file-template_no_authoriser-yaml
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31 #  identifies an AWS CloudFormation template file as an AWS SAM template file
+Globals: # Global variables to be used by specific resources can be defined here.
+  Function:
+    Timeout: 50 # seconds
+    MemorySize: 5000 # megabytes
+  Api:
+    OpenApiVersion: 3.0.1
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+Resources:
+  # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+  LambdaAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+  # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  PredictFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image # docker image
+      Architectures:
+        - x86_64
+      Events:
+        Predict:
+          Type: Api
+          Properties:
+            RestApiId: !Ref LambdaAPI
+            Path: /predict
+            Method: POST
+      Policies:
+        - AmazonS3FullAccess # access policy for Lambda Function to get the data stored at the S3 Bucket
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./
+      DockerTag: python3.9-v1
+Outputs:
+  LambdaApi:
+    Description: "API Gateway endpoint URL for Dev stage for Predict Lambda function"
+    Value: !Sub "https://${LambdaAPI}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/predict"
