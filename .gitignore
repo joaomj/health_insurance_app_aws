@@ -1,0 +1,7 @@
+# file extensions
+*.env
+*.csv
+*.zip
+
+# folders
+sam-installation/
