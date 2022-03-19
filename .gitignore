@@ -2,6 +2,7 @@
 *.env
 *.csv
 *.zip
+*.pkl
 
 # folders
 sam-installation/
