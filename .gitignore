@@ -8,6 +8,7 @@
 sam-installation/
 .aws-sam/
 .ipynb_checkpoints/
+__pycache__/
 
 # specific files
 deploying_lambda-jvsc-c9a6d944-2f09-4984-9fdf-ae1f64f65c1a.ipynb
