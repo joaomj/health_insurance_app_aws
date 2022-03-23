@@ -7,16 +7,6 @@ import sys
 class HealthInsurance:
     def __init__(self):
         
-        #path = str(Path.cwd().parents[0])
-        #scalers_path = path + '/features'
-        
-        # self.annual_premium_scaler =                    pickle.load(open('./features/annual_premium_scaler.pkl', 'rb'))
-        # self.age_scaler =                               pickle.load(open('./features/age_scaler.pkl', 'rb'))
-        # self.vintage_scaler =                           pickle.load(open('./features/vintage_scaler.pkl', 'rb'))
-        # self.target_encoder_gender_scaler =             pickle.load(open('./features/target_encoder_gender_scaler.pkl', 'rb'))
-        # self.target_encoder_region_code_scaler =        pickle.load(open('./features/target_encoder_region_code_scaler.pkl', 'rb'))
-        # self.fe_policy_sales_channel_scaler =           pickle.load(open('./features/frequency_encoder_policy_sales_scaler.pkl', 'rb'))
-
         # no nível de lambda_predict.py relative path is:
         # './healthinsurance/features/age_scaler.pkl'
         self.annual_premium_scaler =                    pickle.load(open('./healthinsurance/features/annual_premium_scaler.pkl', 'rb'))

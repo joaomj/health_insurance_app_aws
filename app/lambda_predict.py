@@ -76,6 +76,10 @@ def lambda_handler(event, context):
     logger.info('Preparing response as JSON file...')
     response = df_test.to_json(orient = 'records', date_format = 'iso')
 
+    size_obj = len(response.encode('utf-8'))
+
+    
+
     # need to do this:
     # Query the data and build a JSON file with all the rows in /tmp (Up to 512MB) directory
     # inside Lambda, upload it to S3 and return a CloudFront Signed URL to access the data.
