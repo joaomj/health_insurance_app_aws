@@ -1,0 +1,13 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "predict-no-auth"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-nsfnbubcqolm"
+s3_prefix = "predict-no-auth"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+parameter_overrides = "Stage=\"dev\""
+image_repositories = ["PredictFunction=031511920889.dkr.ecr.us-east-1.amazonaws.com/predictnoauth8f02f8c5/predictfunction975a0b7frepo"]

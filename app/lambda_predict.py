@@ -4,6 +4,7 @@ import boto3
 import joblib
 import logging
 import pickle
+import numpy as np
 from healthinsurance.HealthInsurance import HealthInsurance
 
 
@@ -32,24 +33,26 @@ logger.info('Model loaded from file.')
 # Lambda Function
 def lambda_handler(event, context):
 
-    # read JSON data packet containing S3 Bucket specs to access test dataset
+    # read JSON data packet containing S3 Bucket specs to access test dataset and dataset percentage of interest
     data = json.loads(event['body'])
     bucket = data['bucket']
     key = data['key']
+    percentage = data['percentage']
 
     # load test data from S3
     logger.info(f'Loading data from{bucket}/{key}')
-    df_test = DownloadFromS3(bucket, key)
+    df_test_raw = DownloadFromS3(bucket, key)
     logger.info(f'Loaded {type(key)} from S3...')
 
     # ========================================
     # code from 'handler.py'
 
-    
     # instantiate HealthInsurance class
     logger.info('Instantiating HealthInsurance class...')
     pipeline = HealthInsurance()
     logger.info('HealthInsurance class instantiated...')
+
+    df_test = df_test_raw.copy()
 
     # data cleaning
     logger.info('Data cleaning...')
@@ -69,21 +72,21 @@ def lambda_handler(event, context):
 
     # join prediction with test data
     logger.info('Joining prediction with test data...')
-    df_test.rename(columns = {'response':'score'}, inplace = True)
-    df_test['score'] = prediction
+
+    # join prediction with original test data
+    logger.info('Joining prediction with test data...')
+    df_test_raw.rename(columns = {'response':'score'}, inplace = True)
+    df_test_raw['score'] = prediction
+
+    # use only the specified percentage of dataset
+    df_test_raw.sort_values(by = 'score', ascending = False, inplace = True, ignore_index = True)
+    a, b, c = np.split(df_test_raw, [int(percentage*len(df_test)), int((1-percentage)*len(df_test))])
 
     # return json to be used by API
     logger.info('Preparing response as JSON file...')
-    response = df_test.to_json(orient = 'records', date_format = 'iso')
-
-    size_obj = len(response.encode('utf-8'))
-
-    
-
-    # need to do this:
-    # Query the data and build a JSON file with all the rows in /tmp (Up to 512MB) directory
-    # inside Lambda, upload it to S3 and return a CloudFront Signed URL to access the data.
-    # source: https://stackoverflow.com/questions/46298060/aws-lambda-response-error/46298912#46298912
+    response = json.dumps(a.values.tolist(), separators=(',', ':')) # convert dataframe to list
+    # size_obj1 = len(response.encode('utf-8'))
+    # print('The size is: {} MB'.format(size_obj1/(1024*1024))) # size in megabytes
 
     return {
         'statusCode': 200,
@@ -92,19 +95,3 @@ def lambda_handler(event, context):
         },
         'body':response 
     }
-
-    # ========================================
-
-
-    # # make predictions and return them as JSON
-    # logger.info(f'Performing predictions...')
-    # predictions = model.predict(df_test)
-    # response = json.dumps(predictions.tolist())
-
-    # return {
-    #     'statusCode': 200,
-    #     'headers':{
-    #         'Content-type':'application/json'
-    #     },
-    #     'body':response 
-    # }
