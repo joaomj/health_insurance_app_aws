@@ -4,6 +4,7 @@
 *.zip
 *.pkl
 *.pyc
+*.pem
 
 # folders
 sam-installation/
